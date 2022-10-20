@@ -17,7 +17,8 @@
 
 <script>
 import {ref} from "vue";
-import {useRouter} from 'vue-router'
+import {useRouter} from 'vue-router';
+import {projectFirestore, timestamp} from "@/firebase/config";
 
 export default {
   name: "CreateView",
@@ -27,7 +28,7 @@ export default {
     const tag = ref('')
     const tags = ref([])
 
-    const router=useRouter()
+    const router = useRouter()
 
     const handleKeydown = () => {
       if (!tags.value.includes(tag.value)) {
@@ -37,22 +38,19 @@ export default {
       tag.value = ''
     }
 
-    const handleSubmit =async ()=>{
+    const handleSubmit = async () => {
       const post = {
-        title:title.value,
-        body:body.value,
-        tags:tags.value
+        title: title.value,
+        body: body.value,
+        tags: tags.value,
+        createAt:timestamp()
       }
-
-      await fetch('http://localhost:3000/posts',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(post)
-      })
-      router.push({name:'HomeView'})
+      const res = await projectFirestore.collection('posts').add(post)
+      console.log(res)
+      router.push({name: 'HomeView'})
     }
 
-    return {title, body, tag, handleKeydown, tags,handleSubmit}
+    return {title, body, tag, handleKeydown, tags, handleSubmit}
   }
 }
 </script>
